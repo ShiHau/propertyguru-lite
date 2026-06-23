@@ -1,5 +1,15 @@
+# Environment variables
 .env
-__pycache__/
-.venv/
 
-alembic/versions/__pycache__/
+# Virtual environment
+.venv
+
+# Cache
+__pycache__/
+.ruff_cache/
+
+# db file
+*.db
+
+# Mock data
+./data

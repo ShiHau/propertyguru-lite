@@ -1,0 +1,11 @@
+client_name,client_email,client_phone,listing_id,message,status,assigned_agent_id,notes
+Alice Brown,alice.brown@example.com,555-0101,1,I'm very interested in the downtown condo. Can we schedule a viewing?,new,1,
+Bob Chen,bob.chen@example.com,555-0102,2,Looking for a rental near the park for my family,new,2,
+Carol Davis,carol.davis@example.com,555-0103,3,Perfect house for our family! Interested in making an offer,contacted,1,Called - client is serious about purchasing
+David Evans,david.evans@example.com,555-0104,5,Interested in the penthouse. What are the closing dates available?,qualified,2,Client has financing pre-approval
+Emma Foster,emma.foster@example.com,555-0105,4,How long is the lease? Is it month-to-month?,contacted,1,Waiting for client response on lease terms
+Frank Garcia,frank.garcia@example.com,555-0106,6,Scheduling a viewing for Saturday morning,new,2,
+Grace Henry,grace.henry@example.com,555-0107,7,Budget is $1500-1700. Interested in viewing,contacted,1,Scheduling viewing for this week
+Henry Ivanovic,henry.ivanovic@example.com,555-0108,8,Dream property! Want to make an offer ASAP,qualified,2,Mortgage pre-approval obtained. Moving forward with offer
+Iris Jackson,iris.jackson@example.com,555-0109,1,Any chance of price negotiation?,new,1,
+Jack Kim,jack.kim@example.com,555-0110,2,Relocating for work. Need place by next month,contacted,2,Urgency level HIGH

@@ -1,0 +1,22 @@
+title,description,address,price,bedrooms,bathrooms,square_feet,listing_type,is_active
+Modern Downtown Condo,Luxury 2BR condo in the heart of downtown with city views,123 Main St Downtown,450000,2,2,1200,sale,1
+Cozy Apartment Near Park,Spacious 1BR apartment with balcony overlooking the park,456 Oak Ave,2500,1,1,850,rent,1
+Family Home with Backyard,Beautiful 4BR house with large backyard perfect for families,789 Maple Lane,550000,4,3,2500,sale,1
+Studio Furnished Apartment,Fully furnished studio close to transit and restaurants,321 Broadway,1800,0,1,500,rent,1
+Penthouse with Terrace,Stunning penthouse with panoramic views and outdoor terrace,999 Sky Tower,750000,3,3,1800,sale,1
+Suburban Family Home,Quiet neighborhood 3BR house with two-car garage,567 Elm Street,380000,3,2,1800,sale,1
+Downtown Studio,Small efficient studio apartment in vibrant neighborhood,222 Urban Plaza,1600,0,1,450,rent,1
+Lakefront Cottage,Charming cottage with private beach access and dock,111 Lakeview Drive,625000,3,2,1600,sale,1
+Renovated Victorian,Historic Victorian home with modern updates and original hardwood,888 Heritage Lane,520000,4,2,2200,sale,1
+Beachfront Apartment,Modern apartment steps from the beach with ocean view,555 Coastal Blvd,3200,2,2,1100,rent,1
+Mountain Cabin Retreat,Secluded cabin in the mountains perfect for weekend getaway,333 Pine Ridge Road,350000,2,1,1400,sale,1
+Urban Loft,Trendy loft conversion in historic warehouse district,777 Industrial Ave,425000,2,2,1050,sale,1
+Garden Level Townhouse,Charming townhouse with private garden patio,444 Tree Lane,385000,3,2,1600,sale,1
+Luxury High-Rise,Premium high-rise apartment with concierge service,666 Tower Square,850000,3,3,1400,sale,1
+Affordable Studio,Budget-friendly studio for first-time renters,111 Budget Street,1400,0,1,400,rent,1
+Suburban Bungalow,Cute one-story bungalow in family-friendly neighborhood,222 Peaceful Way,320000,2,1,1100,sale,1
+Executive Apartment,Upscale furnished apartment for corporate clients,333 Executive Plaza,4500,2,2,1200,rent,1
+Converted Farmhouse,Charming farmhouse with modern amenities and large property,999 Country Road,480000,3,2,1800,sale,1
+Gated Community Home,Spacious home in exclusive gated community with amenities,555 Elite Drive,650000,4,3,2400,sale,1
+Minimalist Loft,Clean-lined loft perfect for modern lifestyle,777 Modern Way,475000,2,2,1100,sale,1
+Waterfront Condo,Contemporary waterfront condo with dock access,222 Marina View,580000,3,2,1350,sale,1
