@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.lead import Lead
-from app.models.user import User, UserRole
+from app.models.user import Agent, UserRole
 from app.business.validation import get_duplicate_user_reason
 from app.schemas.common import RejectedResponse
 from app.schemas.lead import (
@@ -15,18 +15,16 @@ from app.schemas.user import AgentUserUpdate, UserResponse
 
 router = APIRouter(prefix="/api/v1/agent", tags=["agent"])
 
-#TODO: Remove user_id from query once authentication is implemented
+# TODO: Remove user_id from query once authentication is implemented
 """
 user_id should be derived from authentication token, not passed as a query parameter. 
 This will be resolved when authentication is implemented. 
 For now, we will pass user_id as a query parameter for testing purposes.
 """
+
+
 def _validate_agent(user_id: int, db: Session) -> None:
-    agent = (
-        db.query(User)
-        .filter(User.id == user_id, User.role == UserRole.AGENT)
-        .first()
-    )
+    agent = db.query(Agent).filter(Agent.id == user_id).first()
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
 
@@ -72,13 +70,16 @@ def update_my_profile(
     Agent endpoint: Update own user profile information.
     """
     _validate_agent(user_id, db)
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db.query(Agent).filter(Agent.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
     if update_data.email:
         duplicate_reason = get_duplicate_user_reason(
-            db, update_data.email, exclude_user_id=user.id
+            db,
+            update_data.email,
+            exclude_user_id=user.id,
+            exclude_role=UserRole.AGENT,
         )
         if duplicate_reason:
             return {

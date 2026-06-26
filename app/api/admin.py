@@ -1,10 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models.user import User, UserRole
+from app.models.user import Admin, Agent, UserRole
 from app.models.listing import Listing
 from app.models.lead import Lead
-from app.business.validation import get_duplicate_listing_reason, get_duplicate_user_reason
+from app.business.validation import (
+    get_duplicate_listing_reason,
+    get_duplicate_user_reason,
+)
 from app.schemas.common import RejectedResponse
 from app.schemas.user import UserCreate, UserResponse, AdminUserUpdate
 from app.schemas.listing import ListingCreate, ListingUpdate, ListingResponse
@@ -23,8 +26,11 @@ def get_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     """
     Admin endpoint: List all users (agents, admins).
     """
-    users = db.query(User).offset(skip).limit(limit).all()
-    return users
+    agents = db.query(Agent).all()
+    admins = db.query(Admin).all()
+    users = agents + admins
+    users.sort(key=lambda user: user.id)
+    return users[skip : skip + limit]
 
 
 @router.post("/users", response_model=UserResponse | RejectedResponse)
@@ -40,12 +46,27 @@ def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
             "message": "Request rejected",
         }
 
-    db_user = User(
-        email=user_data.email,
-        full_name=user_data.full_name,
-        hashed_password=user_data.password,  # Dev only: not hashed for simplicity
-        role=user_data.role,
-    )
+    if user_data.role == UserRole.AGENT:
+        db_user = Agent(
+            email=user_data.email,
+            full_name=user_data.full_name,
+            hashed_password=user_data.password,  # Dev only: not hashed for simplicity
+            role=UserRole.AGENT,
+        )
+    elif user_data.role == UserRole.ADMIN:
+        db_user = Admin(
+            email=user_data.email,
+            full_name=user_data.full_name,
+            hashed_password=user_data.password,  # Dev only: not hashed for simplicity
+            role=UserRole.ADMIN,
+        )
+    else:
+        return {
+            "status": "rejected",
+            "reason": "Only agent and admin roles are supported",
+            "message": "Request rejected",
+        }
+
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -53,17 +74,35 @@ def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.patch("/users/{user_id}", response_model=UserResponse | RejectedResponse)
-def update_user(user_id: int, update_data: AdminUserUpdate, db: Session = Depends(get_db)):
+def update_user(
+    user_id: int,
+    update_data: AdminUserUpdate,
+    role: UserRole,
+    db: Session = Depends(get_db),
+):
     """
     Admin endpoint: Update any user's information.
     """
-    user = db.query(User).filter(User.id == user_id).first()
+    if role == UserRole.AGENT:
+        user = db.query(Agent).filter(Agent.id == user_id).first()
+    elif role == UserRole.ADMIN:
+        user = db.query(Admin).filter(Admin.id == user_id).first()
+    else:
+        return {
+            "status": "rejected",
+            "reason": "Only agent and admin roles are supported",
+            "message": "Request rejected",
+        }
+
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
     if update_data.email:
         duplicate_reason = get_duplicate_user_reason(
-            db, update_data.email, exclude_user_id=user.id
+            db,
+            update_data.email,
+            exclude_user_id=user.id,
+            exclude_role=role,
         )
         if duplicate_reason:
             return {
@@ -77,8 +116,6 @@ def update_user(user_id: int, update_data: AdminUserUpdate, db: Session = Depend
         user.full_name = update_data.full_name
     if update_data.password:
         user.hashed_password = update_data.password  # Dev only
-    if update_data.role is not None:
-        user.role = update_data.role
     if update_data.is_active is not None:
         user.is_active = 1 if update_data.is_active else 0
 
@@ -88,11 +125,21 @@ def update_user(user_id: int, update_data: AdminUserUpdate, db: Session = Depend
 
 
 @router.delete("/users/{user_id}")
-def delete_user(user_id: int, db: Session = Depends(get_db)):
+def delete_user(user_id: int, role: UserRole, db: Session = Depends(get_db)):
     """
     Admin endpoint: Deactivate a user.
     """
-    user = db.query(User).filter(User.id == user_id).first()
+    if role == UserRole.AGENT:
+        user = db.query(Agent).filter(Agent.id == user_id).first()
+    elif role == UserRole.ADMIN:
+        user = db.query(Admin).filter(Admin.id == user_id).first()
+    else:
+        return {
+            "status": "rejected",
+            "reason": "Only agent and admin roles are supported",
+            "message": "Request rejected",
+        }
+
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -134,7 +181,9 @@ def create_listing(listing_data: ListingCreate, db: Session = Depends(get_db)):
     return db_listing
 
 
-@router.patch("/listings/{listing_id}", response_model=ListingResponse | RejectedResponse)
+@router.patch(
+    "/listings/{listing_id}", response_model=ListingResponse | RejectedResponse
+)
 def update_listing(
     listing_id: int, update_data: ListingUpdate, db: Session = Depends(get_db)
 ):
@@ -226,7 +275,7 @@ def get_dashboard_stats(db: Session = Depends(get_db)):
     """
     total_leads = db.query(Lead).count()
     total_listings = db.query(Listing).filter(Listing.is_active == 1).count()
-    total_agents = db.query(User).filter(User.role == UserRole.AGENT).count()
+    total_agents = db.query(Agent).count()
 
     return {
         "total_leads": total_leads,

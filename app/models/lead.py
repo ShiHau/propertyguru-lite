@@ -31,7 +31,7 @@ class Lead(Base):
     listing_id = Column(Integer, ForeignKey("listings.id"), index=True)
     message = Column(Text)
     status = Column(SQLEnum(LeadStatus), default=LeadStatus.NEW, index=True)
-    assigned_agent_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    assigned_agent_id = Column(Integer, ForeignKey("agents.id"), nullable=True)
     notes = Column(Text, default="")
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())

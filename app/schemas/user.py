@@ -21,7 +21,6 @@ class AdminUserUpdate(BaseModel):
     email: EmailStr | None = None
     full_name: str | None = None
     password: str | None = None
-    role: UserRole | None = None
     is_active: bool | None = None
 
 

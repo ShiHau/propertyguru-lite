@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.models.lead import Lead
-from app.models.user import User, UserRole
+from app.models.user import Agent
 
 
 @dataclass(frozen=True)
@@ -18,17 +18,18 @@ class AgentLoad:
 class AssignmentStrategy(Protocol):
     name: str
 
-    def select_agent_id(self, db: Session, agent_loads: list[AgentLoad]) -> int | None:
-        ...
+    def select_agent_id(
+        self, db: Session, agent_loads: list[AgentLoad]
+    ) -> int | None: ...
 
 
 def _get_active_agent_loads(db: Session) -> list[AgentLoad]:
     rows = (
-        db.query(User.id, func.count(Lead.id).label("lead_count"))
-        .outerjoin(Lead, Lead.assigned_agent_id == User.id)
-        .filter(User.role == UserRole.AGENT, User.is_active == 1)
-        .group_by(User.id)
-        .order_by(User.id.asc())
+        db.query(Agent.id, func.count(Lead.id).label("lead_count"))
+        .outerjoin(Lead, Lead.assigned_agent_id == Agent.id)
+        .filter(Agent.is_active == 1)
+        .group_by(Agent.id)
+        .order_by(Agent.id.asc())
         .all()
     )
     return [AgentLoad(agent_id=row[0], lead_count=row[1]) for row in rows]
@@ -101,6 +102,8 @@ def get_assignment_pipeline(strategy_name: str | None = None) -> AssignmentPipel
     return AssignmentPipeline(selected_strategy)
 
 
-def get_next_assigned_agent_id(db: Session, strategy_name: str | None = None) -> int | None:
+def get_next_assigned_agent_id(
+    db: Session, strategy_name: str | None = None
+) -> int | None:
     pipeline = get_assignment_pipeline(strategy_name)
     return pipeline.get_next_agent_id(db)

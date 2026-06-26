@@ -13,7 +13,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 DATA_DIR = Path(__file__).parent
 
 from app.database import SessionLocal, engine, Base
-from app.models.user import User, UserRole
+from app.models.user import Agent, Admin, UserRole
 from app.models.listing import Listing
 from app.models.lead import Lead, LeadStatus
 
@@ -26,25 +26,48 @@ def reset_database():
     print("✓ Database schema reset complete")
 
 
-def load_users():
-    """Load users from users.csv"""
+def load_agents():
+    """Load agents from agents.csv"""
     db = SessionLocal()
     try:
-        users_file = DATA_DIR / "users.csv"
-        with open(users_file, "r") as f:
+        agents_file = DATA_DIR / "agents.csv"
+        with open(agents_file, "r") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                user = User(
+                agent = Agent(
                     email=row["email"],
                     full_name=row["full_name"],
                     hashed_password=row["hashed_password"],
-                    role=UserRole(row["role"]),
+                    role=UserRole.AGENT,
                     is_active=int(row["is_active"]),
                 )
-                db.add(user)
+                db.add(agent)
 
         db.commit()
-        print(f"✓ Loaded {db.query(User).count()} users")
+        print(f"✓ Loaded {db.query(Agent).count()} agents")
+    finally:
+        db.close()
+
+
+def load_admins():
+    """Load admins from admins.csv"""
+    db = SessionLocal()
+    try:
+        admins_file = DATA_DIR / "admins.csv"
+        with open(admins_file, "r") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                admin = Admin(
+                    email=row["email"],
+                    full_name=row["full_name"],
+                    hashed_password=row["hashed_password"],
+                    role=UserRole.ADMIN,
+                    is_active=int(row["is_active"]),
+                )
+                db.add(admin)
+
+        db.commit()
+        print(f"✓ Loaded {db.query(Admin).count()} admins")
     finally:
         db.close()
 
@@ -112,7 +135,8 @@ def main():
 
     try:
         reset_database()
-        load_users()
+        load_agents()
+        load_admins()
         load_listings()
         load_leads()
         print()

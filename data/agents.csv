@@ -1,0 +1,5 @@
+email,full_name,hashed_password,is_active
+john.agent@example.com,John Smith,password123,1
+sarah.agent@example.com,Sarah Johnson,password123,1
+jane.agent@example.com,Jane Doe,password123,1
+tom.agent@example.com,Tom Wilson,password123,1

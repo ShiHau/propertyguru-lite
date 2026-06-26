@@ -1,0 +1,2 @@
+email,full_name,hashed_password,is_active
+mike.admin@example.com,Mike Admin,password123,1

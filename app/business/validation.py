@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.models.lead import Lead
 from app.models.listing import Listing
-from app.models.user import User
+from app.models.user import Admin, Agent, UserRole
 
 
 def _normalize_text(value: str) -> str:
@@ -11,16 +11,23 @@ def _normalize_text(value: str) -> str:
 
 
 def get_duplicate_user_reason(
-    db: Session, email: str, exclude_user_id: int | None = None
+    db: Session,
+    email: str,
+    exclude_user_id: int | None = None,
+    exclude_role: UserRole | None = None,
 ) -> str | None:
     normalized_email = _normalize_text(email)
-    query = db.query(User).filter(func.lower(User.email) == normalized_email)
-    # Prevents user getting flagged when updating their own email
-    if exclude_user_id is not None:
-        query = query.filter(User.id != exclude_user_id)
-    existing_user = query.first()
+    agent_query = db.query(Agent).filter(func.lower(Agent.email) == normalized_email)
+    if exclude_user_id is not None and exclude_role == UserRole.AGENT:
+        agent_query = agent_query.filter(Agent.id != exclude_user_id)
+    existing_agent = agent_query.first()
 
-    if existing_user:
+    admin_query = db.query(Admin).filter(func.lower(Admin.email) == normalized_email)
+    if exclude_user_id is not None and exclude_role == UserRole.ADMIN:
+        admin_query = admin_query.filter(Admin.id != exclude_user_id)
+    existing_admin = admin_query.first()
+
+    if existing_agent or existing_admin:
         return "User with this email already exists"
     return None
 
