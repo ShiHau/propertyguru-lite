@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
+from app.business.assignment import get_next_assigned_agent_id
+from app.business.validation import get_duplicate_lead_reason
+from app.schemas.common import RejectedResponse
 from app.schemas.lead import LeadCreate, LeadResponse
 from app.models.lead import Lead
 from app.schemas.listing import ListingResponse
@@ -9,7 +12,7 @@ from app.models.listing import Listing
 router = APIRouter(prefix="/api/v1/client", tags=["client"])
 
 
-@router.post("/inquiries", response_model=LeadResponse)
+@router.post("/inquiries", response_model=LeadResponse | RejectedResponse)
 def submit_inquiry(lead: LeadCreate, db: Session = Depends(get_db)):
     """
     Public endpoint: Client submits an inquiry (no authentication required).
@@ -23,12 +26,25 @@ def submit_inquiry(lead: LeadCreate, db: Session = Depends(get_db)):
     if not listing:
         raise HTTPException(status_code=400, detail="Invalid listing_id")
 
+    duplicate_reason = get_duplicate_lead_reason(
+        db, lead.client_email, lead.client_phone, lead.listing_id
+    )
+    if duplicate_reason:
+        return {
+            "status": "rejected",
+            "reason": duplicate_reason,
+            "message": "Request rejected",
+        }
+
+    assigned_agent_id = get_next_assigned_agent_id(db)
+
     db_lead = Lead(
         client_name=lead.client_name,
         client_email=lead.client_email,
         client_phone=lead.client_phone,
         listing_id=lead.listing_id,
         message=lead.message,
+        assigned_agent_id=assigned_agent_id,
     )
     db.add(db_lead)
     db.commit()

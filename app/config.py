@@ -13,5 +13,8 @@ class Settings(BaseSettings):
     app_name: str = "PropertyGuru Lite"
     app_environment: Literal["development", "production"] = "development"
 
+    # Assignment
+    assignment_strategy: str = "round_robin_load_aware"
+
 
 settings = Settings()

@@ -2,44 +2,102 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.lead import Lead
+from app.models.user import User, UserRole
+from app.business.validation import get_duplicate_user_reason
+from app.schemas.common import RejectedResponse
 from app.schemas.lead import (
     LeadResponse,
     LeadDetailResponse,
     LeadNoteCreate,
     LeadUpdate,
 )
+from app.schemas.user import AgentUserUpdate, UserResponse
 
 router = APIRouter(prefix="/api/v1/agent", tags=["agent"])
+
+#TODO: Remove user_id from query once authentication is implemented
+"""
+user_id should be derived from authentication token, not passed as a query parameter. 
+This will be resolved when authentication is implemented. 
+For now, we will pass user_id as a query parameter for testing purposes.
+"""
+def _validate_agent(user_id: int, db: Session) -> None:
+    agent = (
+        db.query(User)
+        .filter(User.id == user_id, User.role == UserRole.AGENT)
+        .first()
+    )
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
 
 
 @router.get("/inquiries", response_model=list[LeadResponse])
 def get_inquiries(
-    status_filter: str | None = None,
+    user_id: int,
     skip: int = 0,
     limit: int = 10,
     db: Session = Depends(get_db),
 ):
     """
-    Agent endpoint: View all inquiries with optional filtering by status.
+    Agent endpoint: View inquiries assigned to this agent with optional filtering by status.
     """
-    query = db.query(Lead)
-
-    if status_filter:
-        query = query.filter(Lead.status == status_filter)
+    _validate_agent(user_id, db)
+    query = db.query(Lead).filter(Lead.assigned_agent_id == user_id)
 
     inquiries = query.offset(skip).limit(limit).all()
     return inquiries
 
 
 @router.get("/inquiries/{inquiry_id}", response_model=LeadDetailResponse)
-def get_inquiry_detail(inquiry_id: int, db: Session = Depends(get_db)):
+def get_inquiry_detail(inquiry_id: int, user_id: int, db: Session = Depends(get_db)):
     """
-    Agent endpoint: Get detailed information about an inquiry.
+    Agent endpoint: Get detailed information about an inquiry assigned to this agent.
     """
-    inquiry = db.query(Lead).filter(Lead.id == inquiry_id).first()
+    _validate_agent(user_id, db)
+    inquiry = (
+        db.query(Lead)
+        .filter(Lead.id == inquiry_id, Lead.assigned_agent_id == user_id)
+        .first()
+    )
     if not inquiry:
         raise HTTPException(status_code=404, detail="Inquiry not found")
     return inquiry
+
+
+@router.patch("/users/me", response_model=UserResponse | RejectedResponse)
+def update_my_profile(
+    user_id: int, update_data: AgentUserUpdate, db: Session = Depends(get_db)
+):
+    """
+    Agent endpoint: Update own user profile information.
+    """
+    _validate_agent(user_id, db)
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if update_data.email:
+        duplicate_reason = get_duplicate_user_reason(
+            db, update_data.email, exclude_user_id=user.id
+        )
+        if duplicate_reason:
+            return {
+                "status": "rejected",
+                "reason": duplicate_reason,
+                "message": "Request rejected",
+            }
+        user.email = update_data.email
+
+    if update_data.full_name:
+        user.full_name = update_data.full_name
+    if update_data.password:
+        user.hashed_password = update_data.password  # Dev only
+    if update_data.is_active is not None:
+        user.is_active = 1 if update_data.is_active else 0
+
+    db.commit()
+    db.refresh(user)
+    return user
 
 
 @router.patch("/inquiries/{inquiry_id}", response_model=LeadResponse)

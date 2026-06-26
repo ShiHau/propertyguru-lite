@@ -4,8 +4,11 @@ from app.database import get_db
 from app.models.user import User, UserRole
 from app.models.listing import Listing
 from app.models.lead import Lead
-from app.schemas.user import UserCreate, UserResponse
+from app.business.validation import get_duplicate_listing_reason, get_duplicate_user_reason
+from app.schemas.common import RejectedResponse
+from app.schemas.user import UserCreate, UserResponse, AdminUserUpdate
 from app.schemas.listing import ListingCreate, ListingUpdate, ListingResponse
+from app.schemas.lead import LeadResponse, LeadDetailResponse
 
 router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
 
@@ -24,15 +27,18 @@ def get_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return users
 
 
-@router.post("/users", response_model=UserResponse)
+@router.post("/users", response_model=UserResponse | RejectedResponse)
 def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
     """
     Admin endpoint: Create a new user (agent or admin).
     """
-    # Check if user already exists
-    existing_user = db.query(User).filter(User.email == user_data.email).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+    duplicate_reason = get_duplicate_user_reason(db, user_data.email)
+    if duplicate_reason:
+        return {
+            "status": "rejected",
+            "reason": duplicate_reason,
+            "message": "Request rejected",
+        }
 
     db_user = User(
         email=user_data.email,
@@ -44,6 +50,41 @@ def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+@router.patch("/users/{user_id}", response_model=UserResponse | RejectedResponse)
+def update_user(user_id: int, update_data: AdminUserUpdate, db: Session = Depends(get_db)):
+    """
+    Admin endpoint: Update any user's information.
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if update_data.email:
+        duplicate_reason = get_duplicate_user_reason(
+            db, update_data.email, exclude_user_id=user.id
+        )
+        if duplicate_reason:
+            return {
+                "status": "rejected",
+                "reason": duplicate_reason,
+                "message": "Request rejected",
+            }
+        user.email = update_data.email
+
+    if update_data.full_name:
+        user.full_name = update_data.full_name
+    if update_data.password:
+        user.hashed_password = update_data.password  # Dev only
+    if update_data.role is not None:
+        user.role = update_data.role
+    if update_data.is_active is not None:
+        user.is_active = 1 if update_data.is_active else 0
+
+    db.commit()
+    db.refresh(user)
+    return user
 
 
 @router.delete("/users/{user_id}")
@@ -74,11 +115,18 @@ def get_all_listings(skip: int = 0, limit: int = 10, db: Session = Depends(get_d
     return listings
 
 
-@router.post("/listings", response_model=ListingResponse)
+@router.post("/listings", response_model=ListingResponse | RejectedResponse)
 def create_listing(listing_data: ListingCreate, db: Session = Depends(get_db)):
     """
     Admin endpoint: Create a new listing.
     """
+    duplicate_reason = get_duplicate_listing_reason(db, listing_data.address)
+    if duplicate_reason:
+        return {
+            "status": "rejected",
+            "reason": duplicate_reason,
+            "message": "Request rejected",
+        }
     db_listing = Listing(**listing_data.model_dump())
     db.add(db_listing)
     db.commit()
@@ -86,7 +134,7 @@ def create_listing(listing_data: ListingCreate, db: Session = Depends(get_db)):
     return db_listing
 
 
-@router.patch("/listings/{listing_id}", response_model=ListingResponse)
+@router.patch("/listings/{listing_id}", response_model=ListingResponse | RejectedResponse)
 def update_listing(
     listing_id: int, update_data: ListingUpdate, db: Session = Depends(get_db)
 ):
@@ -96,6 +144,17 @@ def update_listing(
     listing = db.query(Listing).filter(Listing.id == listing_id).first()
     if not listing:
         raise HTTPException(status_code=404, detail="Listing not found")
+
+    if update_data.address:
+        duplicate_reason = get_duplicate_listing_reason(
+            db, update_data.address, exclude_listing_id=listing.id
+        )
+        if duplicate_reason:
+            return {
+                "status": "rejected",
+                "reason": duplicate_reason,
+                "message": "Request rejected",
+            }
 
     update_dict = update_data.model_dump(exclude_unset=True)
     for key, value in update_dict.items():
@@ -118,6 +177,41 @@ def delete_listing(listing_id: int, db: Session = Depends(get_db)):
     listing.is_active = 0
     db.commit()
     return {"message": "Listing deactivated"}
+
+
+# =====================
+# Inquiry Management
+# =====================
+
+
+@router.get("/inquiries", response_model=list[LeadResponse])
+def get_all_inquiries(
+    status_filter: str | None = None,
+    skip: int = 0,
+    limit: int = 10,
+    db: Session = Depends(get_db),
+):
+    """
+    Admin endpoint: View all inquiries with optional filtering by status.
+    """
+    query = db.query(Lead)
+
+    if status_filter:
+        query = query.filter(Lead.status == status_filter)
+
+    inquiries = query.offset(skip).limit(limit).all()
+    return inquiries
+
+
+@router.get("/inquiries/{inquiry_id}", response_model=LeadDetailResponse)
+def get_inquiry_detail(inquiry_id: int, db: Session = Depends(get_db)):
+    """
+    Admin endpoint: Get detailed information about any inquiry.
+    """
+    inquiry = db.query(Lead).filter(Lead.id == inquiry_id).first()
+    if not inquiry:
+        raise HTTPException(status_code=404, detail="Inquiry not found")
+    return inquiry
 
 
 # =====================

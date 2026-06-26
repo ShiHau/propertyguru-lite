@@ -10,6 +10,21 @@ class UserCreate(BaseModel):
     role: UserRole
 
 
+class AgentUserUpdate(BaseModel):
+    email: EmailStr | None = None
+    full_name: str | None = None
+    password: str | None = None
+    is_active: bool | None = None
+
+
+class AdminUserUpdate(BaseModel):
+    email: EmailStr | None = None
+    full_name: str | None = None
+    password: str | None = None
+    role: UserRole | None = None
+    is_active: bool | None = None
+
+
 class UserResponse(BaseModel):
     id: int
     email: str
