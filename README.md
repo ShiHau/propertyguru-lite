@@ -55,7 +55,7 @@ Important:
 ## 4) Run API Server
 
 ```bash
-uvicorn app.main:app --reload
+uvicorn backend.main:app --reload
 ```
 
 Server:
@@ -68,7 +68,7 @@ Server:
 1. Pull latest changes
 2. `uv sync`
 3. `python data/load_mock_data.py`
-4. `uvicorn app.main:app --reload`
+4. `uvicorn backend.main:app --reload`
 5. Test endpoints from `/docs` or curl
 
 ## Temporary Auth Note
@@ -93,13 +93,14 @@ Notes:
 ## Project Layout
 
 ```text
-app/
-  api/            # Route handlers
+backend/
+  api/            # API package
+    api/          # Route modules (admins.py, agents.py, auth.py, clients.py)
+    schema/       # Shared Pydantic schemas
+  db/             # Engine, session factory, Base
   lib/            # Domain and shared application logic
-  models/         # SQLAlchemy ORM models
-  schemas/        # Pydantic request/response schemas
+  models/         # ORM re-exports
   config.py       # Settings from .env
-  database.py     # Engine, session factory, Base
   main.py         # FastAPI app startup
 
 data/

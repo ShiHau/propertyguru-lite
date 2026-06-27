@@ -12,11 +12,11 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 DATA_DIR = Path(__file__).parent
 
-from app.database import SessionLocal, engine, Base
-from app.lib.auth import AuthenticationService
-from app.models.user import Agent, Admin, UserRole
-from app.models.listing import Listing
-from app.models.lead import Lead, LeadStatus
+from backend.db import SessionLocal, engine, Base
+from backend.lib.auth import AuthenticationService
+from backend.models.user import Agent, Admin, UserRole
+from backend.models.listing import Listing
+from backend.models.lead import Lead, LeadStatus
 
 
 def reset_database():
