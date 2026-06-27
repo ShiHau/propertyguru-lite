@@ -13,6 +13,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 DATA_DIR = Path(__file__).parent
 
 from app.database import SessionLocal, engine, Base
+from app.lib.auth import AuthenticationService
 from app.models.user import Agent, Admin, UserRole
 from app.models.listing import Listing
 from app.models.lead import Lead, LeadStatus
@@ -37,7 +38,7 @@ def load_agents():
                 agent = Agent(
                     email=row["email"],
                     full_name=row["full_name"],
-                    hashed_password=row["hashed_password"],
+                    hashed_password=AuthenticationService.hash_password(row["password"]),
                     role=UserRole.AGENT,
                     is_active=int(row["is_active"]),
                 )
@@ -60,7 +61,7 @@ def load_admins():
                 admin = Admin(
                     email=row["email"],
                     full_name=row["full_name"],
-                    hashed_password=row["hashed_password"],
+                    hashed_password=AuthenticationService.hash_password(row["password"]),
                     role=UserRole.ADMIN,
                     is_active=int(row["is_active"]),
                 )

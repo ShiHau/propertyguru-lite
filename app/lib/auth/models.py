@@ -1,10 +1,26 @@
+from dataclasses import dataclass
 from enum import StrEnum
+
 from app.models.user import UserRole
 
 
-class Permission(StrEnum):
-    """Canonical permission keys for role-based access control."""
+@dataclass(frozen=True)
+class Principal:
+    user_id: int
+    role: UserRole
+    email: str
+    full_name: str
+    is_active: bool
 
+
+@dataclass(frozen=True)
+class TokenPayload:
+    subject: str
+    role: UserRole
+    user_id: int
+
+
+class Permission(StrEnum):
     USERS_READ = "users:read"
     USERS_WRITE = "users:write"
     LISTINGS_READ = "listings:read"
@@ -31,10 +47,3 @@ ROLE_PERMISSIONS: dict[UserRole, set[Permission]] = {
         Permission.PROFILE_WRITE_OWN,
     },
 }
-
-
-def has_permissions(role: UserRole, required: set[Permission]) -> bool:
-    """Returns True when the role satisfies all required permissions."""
-
-    granted = ROLE_PERMISSIONS.get(role, set())
-    return required.issubset(granted)

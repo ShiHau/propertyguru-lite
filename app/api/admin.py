@@ -4,6 +4,8 @@ from app.database import get_db
 from app.models.user import Admin, Agent, UserRole
 from app.models.listing import Listing
 from app.models.lead import Lead
+from app.api.security import require_admin_principal
+from app.lib.auth import AuthenticationService
 from app.lib.validation import (
     get_duplicate_listing_reason,
     get_duplicate_user_reason,
@@ -13,7 +15,11 @@ from app.schemas.user import UserCreate, UserResponse, AdminUserUpdate
 from app.schemas.listing import ListingCreate, ListingUpdate, ListingResponse
 from app.schemas.lead import LeadResponse, LeadDetailResponse
 
-router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
+router = APIRouter(
+    prefix="/api/v1/admin",
+    tags=["admin"],
+    dependencies=[Depends(require_admin_principal)],
+)
 
 
 # =====================
@@ -50,14 +56,14 @@ def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
         db_user = Agent(
             email=user_data.email,
             full_name=user_data.full_name,
-            hashed_password=user_data.password,  # Dev only: not hashed for simplicity
+            hashed_password=AuthenticationService.hash_password(user_data.password),
             role=UserRole.AGENT,
         )
     elif user_data.role == UserRole.ADMIN:
         db_user = Admin(
             email=user_data.email,
             full_name=user_data.full_name,
-            hashed_password=user_data.password,  # Dev only: not hashed for simplicity
+            hashed_password=AuthenticationService.hash_password(user_data.password),
             role=UserRole.ADMIN,
         )
     else:
@@ -115,7 +121,7 @@ def update_user(
     if update_data.full_name:
         user.full_name = update_data.full_name
     if update_data.password:
-        user.hashed_password = update_data.password  # Dev only
+        user.hashed_password = AuthenticationService.hash_password(update_data.password)
     if update_data.is_active is not None:
         user.is_active = 1 if update_data.is_active else 0
 
