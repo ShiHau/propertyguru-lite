@@ -95,7 +95,7 @@ Notes:
 ```text
 app/
   api/            # Route handlers
-  business/       # Buisness logic
+  lib/            # Domain and shared application logic
   models/         # SQLAlchemy ORM models
   schemas/        # Pydantic request/response schemas
   config.py       # Settings from .env

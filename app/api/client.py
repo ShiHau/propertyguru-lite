@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.business.assignment import get_next_assigned_agent_id
-from app.business.validation import get_duplicate_lead_reason
+from app.lib.assignment import get_next_assigned_agent_id
+from app.lib.validation import get_duplicate_lead_reason
 from app.schemas.common import RejectedResponse
 from app.schemas.lead import LeadCreate, LeadResponse
 from app.models.lead import Lead

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.lead import Lead
 from app.models.user import Agent, UserRole
-from app.business.validation import get_duplicate_user_reason
+from app.lib.validation import get_duplicate_user_reason
 from app.schemas.common import RejectedResponse
 from app.schemas.lead import (
     LeadResponse,

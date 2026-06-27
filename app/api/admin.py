@@ -4,7 +4,7 @@ from app.database import get_db
 from app.models.user import Admin, Agent, UserRole
 from app.models.listing import Listing
 from app.models.lead import Lead
-from app.business.validation import (
+from app.lib.validation import (
     get_duplicate_listing_reason,
     get_duplicate_user_reason,
 )
