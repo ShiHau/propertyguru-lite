@@ -1,0 +1,45 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+<section class="card">
+  <a class="back-link" href="/portal/agent">Back to Inquiries</a>
+  <h2>Inquiry Details</h2>
+
+  {% if success_message %}
+    <div class="alert success">{{ success_message }}</div>
+  {% endif %}
+  {% if error_message %}
+    <div class="alert error">{{ error_message }}</div>
+  {% endif %}
+
+  {% if inquiry %}
+    <p><strong>ID:</strong> {{ inquiry.id }}</p>
+    <p><strong>Client:</strong> {{ inquiry.client_name }} ({{ inquiry.client_email }})</p>
+    <p><strong>Phone:</strong> {{ inquiry.client_phone }}</p>
+    <p><strong>Status:</strong> {{ inquiry.status }}</p>
+    <p>
+      <strong>Listing:</strong>
+      <a href="/portal/agent/listings/{{ inquiry.listing_id }}">{{ listing.title if listing else inquiry.listing_id }}</a>
+    </p>
+    <p><strong>Message:</strong> {{ inquiry.message }}</p>
+    <p><strong>Notes:</strong> {{ inquiry.notes }}</p>
+
+    <h3>Edit Inquiry</h3>
+    <form method="post" action="/portal/agent/inquiries/{{ inquiry.id }}/update" class="form-grid">
+      <label>
+        Status
+        <select name="status">
+          {% for status in status_options %}
+            <option value="{{ status }}" {% if status == inquiry.status %}selected{% endif %}>{{ status }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Notes
+        <textarea name="notes" rows="3">{{ inquiry.notes or '' }}</textarea>
+      </label>
+      <button type="submit" class="btn">Save Inquiry</button>
+    </form>
+  {% endif %}
+</section>
+{% endblock %}

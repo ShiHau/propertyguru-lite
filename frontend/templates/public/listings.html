@@ -1,0 +1,29 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+<section class="card">
+  <h2>Active Listings</h2>
+  {% if error_message %}
+    <div class="alert error">{{ error_message }}</div>
+  {% endif %}
+  {% if listings %}
+    <ul class="listing-rows">
+      {% for listing in listings %}
+        <li class="listing-row-item">
+          <div>
+            <h3>{{ listing.title }}</h3>
+            <p>{{ listing.address }}</p>
+            <p>{{ listing.bedrooms }} bed | {{ listing.bathrooms }} bath</p>
+          </div>
+          <div class="listing-row-actions">
+            <p class="price">${{ "%.2f"|format(listing.price) }}</p>
+            <a class="btn" href="/listings/{{ listing.id }}">View Details</a>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No active listings available.</p>
+  {% endif %}
+</section>
+{% endblock %}

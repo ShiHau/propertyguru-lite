@@ -1,0 +1,25 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+<section class="card">
+  <h2>Admin / Agent Login</h2>
+
+  {% if error_message %}
+    <div class="alert error">{{ error_message }}</div>
+  {% endif %}
+
+  <form method="post" action="/login" class="form-grid">
+    <label>
+      Email
+      <input type="email" name="email" required />
+    </label>
+
+    <label>
+      Password
+      <input type="password" name="password" required />
+    </label>
+
+    <button type="submit" class="btn">Login</button>
+  </form>
+</section>
+{% endblock %}

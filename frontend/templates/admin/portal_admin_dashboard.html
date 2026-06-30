@@ -1,0 +1,26 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+<section class="card">
+  <h2>Admin Dashboard</h2>
+
+  {% if error_message %}
+    <div class="alert error">{{ error_message }}</div>
+  {% endif %}
+
+  <div class="stats-grid">
+    <a class="stat-card stat-link" href="/portal/admin/inquiries">
+      <p>Total Leads</p>
+      <h3>{{ stats.total_leads or 0 }}</h3>
+    </a>
+    <a class="stat-card stat-link" href="/portal/admin/listings">
+      <p>Active Listings</p>
+      <h3>{{ stats.total_listings or 0 }}</h3>
+    </a>
+    <a class="stat-card stat-link" href="/portal/admin/agents">
+      <p>Total Agents</p>
+      <h3>{{ stats.total_agents or 0 }}</h3>
+    </a>
+  </div>
+</section>
+{% endblock %}

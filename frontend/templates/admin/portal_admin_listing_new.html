@@ -1,0 +1,24 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+<section class="card">
+  <a class="back-link" href="/portal/admin/listings">Back to Listings</a>
+  <h2>Add Listing</h2>
+
+  {% if error_message %}
+    <div class="alert error">{{ error_message }}</div>
+  {% endif %}
+
+  <form method="post" action="/portal/admin/listings/new" class="form-grid">
+    <label>Title <input type="text" name="title" required /></label>
+    <label>Description <textarea name="description" rows="4" required></textarea></label>
+    <label>Address <input type="text" name="address" required /></label>
+    <label>Price <input type="number" step="0.01" name="price" required /></label>
+    <label>Bedrooms <input type="number" name="bedrooms" required /></label>
+    <label>Bathrooms <input type="number" name="bathrooms" required /></label>
+    <label>Square Feet <input type="number" step="0.01" name="square_feet" /></label>
+    <label>Type <input type="text" name="listing_type" placeholder="rent or sale" required /></label>
+    <button type="submit" class="btn">Create Listing</button>
+  </form>
+</section>
+{% endblock %}

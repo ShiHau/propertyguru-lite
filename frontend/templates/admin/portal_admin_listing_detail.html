@@ -1,0 +1,44 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+<section class="card">
+  <a class="back-link" href="/portal/admin/listings">Back to Listings</a>
+  <h2>Listing Details</h2>
+
+  {% if success_message %}
+    <div class="alert success">{{ success_message }}</div>
+  {% endif %}
+  {% if error_message %}
+    <div class="alert error">{{ error_message }}</div>
+  {% endif %}
+
+  {% if listing %}
+    <p><strong>Title:</strong> {{ listing.title }}</p>
+    <p><strong>Address:</strong> {{ listing.address }}</p>
+    <p><strong>Price:</strong> {{ listing.price }}</p>
+    <p><strong>Type:</strong> {{ listing.listing_type }}</p>
+    <p><strong>Active:</strong> {{ listing.is_active }}</p>
+
+    <h3>Edit Listing</h3>
+    <form method="post" action="/portal/admin/listings/{{ listing.id }}/update" class="form-grid">
+      <label>Title <input type="text" name="title" value="{{ listing.title or '' }}" /></label>
+      <label>Description <textarea name="description" rows="4">{{ listing.description or '' }}</textarea></label>
+      <label>Address <input type="text" name="address" value="{{ listing.address or '' }}" /></label>
+      <label>Price <input type="number" step="0.01" name="price" value="{{ listing.price or '' }}" /></label>
+      <label>Bedrooms <input type="number" name="bedrooms" value="{{ listing.bedrooms or '' }}" /></label>
+      <label>Bathrooms <input type="number" name="bathrooms" value="{{ listing.bathrooms or '' }}" /></label>
+      <label>Square Feet <input type="number" step="0.01" name="square_feet" value="{{ listing.square_feet or '' }}" /></label>
+      <label>Type <input type="text" name="listing_type" value="{{ listing.listing_type or '' }}" /></label>
+      <label>
+        Active Status
+        <select name="is_active_action">
+          <option value="keep">Keep current</option>
+          <option value="true" {% if listing.is_active %}selected{% endif %}>Set active</option>
+          <option value="false" {% if not listing.is_active %}selected{% endif %}>Set inactive</option>
+        </select>
+      </label>
+      <button type="submit" class="btn">Save Listing</button>
+    </form>
+  {% endif %}
+</section>
+{% endblock %}

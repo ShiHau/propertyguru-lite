@@ -1,0 +1,38 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+<section class="card">
+  <a class="back-link" href="/portal/admin">Back to Dashboard</a>
+  <h2>Agents</h2>
+
+  {% if success_message %}
+    <div class="alert success">{{ success_message }}</div>
+  {% endif %}
+  {% if error_message %}
+    <div class="alert error">{{ error_message }}</div>
+  {% endif %}
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Active</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for agent in agents %}
+        <tr>
+          <td>{{ agent.full_name }}</td>
+          <td>{{ agent.email }}</td>
+          <td>{{ agent.is_active }}</td>
+          <td>
+            <a class="btn" href="/portal/admin/agents/{{ agent.id }}">Details</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+<section class="card">
+  <a class="back-link" href="/listings">Back to Listings</a>
+  <h2>Listing Details</h2>
+
+  {% if error_message %}
+    <div class="alert error">{{ error_message }}</div>
+  {% endif %}
+
+  {% if listing %}
+    <h3>{{ listing.title }}</h3>
+    <p class="price">${{ "%.2f"|format(listing.price) }}</p>
+    <p><strong>Address:</strong> {{ listing.address }}</p>
+    <p><strong>Type:</strong> {{ listing.listing_type }}</p>
+    <p><strong>Bedrooms:</strong> {{ listing.bedrooms }}</p>
+    <p><strong>Bathrooms:</strong> {{ listing.bathrooms }}</p>
+    {% if listing.square_feet %}
+      <p><strong>Square Feet:</strong> {{ listing.square_feet }}</p>
+    {% endif %}
+    <p>{{ listing.description }}</p>
+
+    <a class="btn" href="/listings/{{ listing.id }}/inquiry">Inquire</a>
+  {% endif %}
+</section>
+{% endblock %}

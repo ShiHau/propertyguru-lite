@@ -1,0 +1,46 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+<section class="card">
+  <a class="back-link" href="/portal/admin/agents">Back to Agents</a>
+  <h2>Agent Details</h2>
+
+  {% if success_message %}
+    <div class="alert success">{{ success_message }}</div>
+  {% endif %}
+  {% if error_message %}
+    <div class="alert error">{{ error_message }}</div>
+  {% endif %}
+
+  {% if agent %}
+    <p><strong>Name:</strong> {{ agent.full_name }}</p>
+    <p><strong>Email:</strong> {{ agent.email }}</p>
+    <p><strong>Role:</strong> {{ agent.role }}</p>
+    <p><strong>Active:</strong> {{ agent.is_active }}</p>
+    {% set hidden_agent_fields = ["id", "full_name", "email", "role", "is_active", "hashed_password", "password"] %}
+    {% for key, value in agent.items() %}
+      {% if key not in hidden_agent_fields and value is not none %}
+        <p><strong>{{ key.replace("_", " ").title() }}:</strong> {{ value }}</p>
+      {% endif %}
+    {% endfor %}
+
+    <form method="post" action="/portal/admin/agents/{{ agent.id }}/toggle-active" class="inline-form-row">
+      <span><strong>Status:</strong> {{ "active" if agent.is_active else "inactive" }}</span>
+      <button type="submit" class="btn">Toggle Active</button>
+    </form>
+
+    <h3>Edit Agent</h3>
+    <form method="post" action="/portal/admin/agents/{{ agent.id }}/update" class="form-grid">
+      <label>
+        Full Name
+        <input type="text" name="full_name" value="{{ agent.full_name or '' }}" />
+      </label>
+      <label>
+        Email
+        <input type="email" name="email" value="{{ agent.email or '' }}" />
+      </label>
+      <button type="submit" class="btn">Save Changes</button>
+    </form>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,6 +1,6 @@
 # PropertyGuru Lite
 
-FastAPI backend for a real-estate leads management system.
+FastAPI backend plus a separate server-rendered frontend for a real-estate leads management system.
 
 Current status:
 - Core business rules implemented (duplicate checks, assignment strategy pipeline)
@@ -34,6 +34,8 @@ DATABASE_URL=sqlite:///./propertyguru.db
 APP_NAME=PropertyGuru Lite
 APP_ENVIRONMENT=development
 ASSIGNMENT_STRATEGY=round_robin_load_aware
+FRONTEND_APP_NAME=PropertyGuru Lite Frontend
+FRONTEND_BACKEND_BASE_URL=http://127.0.0.1:8000
 ```
 
 ## 3) Reset and Seed Database (Recommended for Dev)
@@ -52,7 +54,7 @@ What this does:
 Important:
 - Stop the API server before running this script (SQLite file lock).
 
-## 4) Run API Server
+## 4) Run Backend Server
 
 ```bash
 uvicorn backend.main:app --reload
@@ -63,13 +65,38 @@ Server:
 - Swagger docs: http://localhost:8000/docs
 - Health: http://localhost:8000/health
 
+## 5) Run Frontend Server
+
+In a second terminal:
+
+```bash
+uvicorn frontend.main:app --reload --port 8080
+```
+
+Frontend server:
+- Home: http://localhost:8080/
+- Listings: http://localhost:8080/listings
+- Inquiry form: http://localhost:8080/inquiry
+
+The frontend server calls backend endpoints through `FRONTEND_BACKEND_BASE_URL`.
+
+## 6) Architecture
+
+The project is split into isolated layers:
+
+- Backend server: API, auth, business logic, database access
+- Frontend server: templates, web routes, and backend API consumption
+
+This supports scaling frontend workers and backend workers independently.
+
 ## Development
 
 1. Pull latest changes
 2. `uv sync`
 3. `python data/load_mock_data.py`
 4. `uvicorn backend.main:app --reload`
-5. Test endpoints from `/docs` or curl
+5. `uvicorn frontend.main:app --reload --port 8080`
+6. Test API from `/docs` and UI from frontend routes
 
 ## Temporary Auth Note
 
@@ -101,7 +128,15 @@ backend/
   lib/            # Domain and shared application logic
   models/         # ORM re-exports
   config.py       # Settings from .env
-  main.py         # FastAPI app startup
+  main.py         # Backend FastAPI app startup
+
+frontend/
+  main.py         # Frontend FastAPI app startup
+  routes.py       # Frontend routing logic
+  backend_client.py # HTTP client to backend APIs
+  config.py       # Frontend settings from .env
+  templates/      # Jinja templates
+  static/         # CSS/static assets
 
 data/
   admins.csv

@@ -1,0 +1,42 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+<section class="card">
+  <a class="back-link" href="/portal/admin">Back to Dashboard</a>
+  <h2>Listings</h2>
+
+  {% if success_message %}
+    <div class="alert success">{{ success_message }}</div>
+  {% endif %}
+  {% if error_message %}
+    <div class="alert error">{{ error_message }}</div>
+  {% endif %}
+
+  <p><a class="btn" href="/portal/admin/listings/new">Add Listing</a></p>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Address</th>
+        <th>Price</th>
+        <th>Type</th>
+        <th>Active</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for listing in listings %}
+        <tr>
+          <td>{{ listing.title }}</td>
+          <td>{{ listing.address }}</td>
+          <td>{{ listing.price }}</td>
+          <td>{{ listing.listing_type }}</td>
+          <td>{{ listing.is_active }}</td>
+          <td><a class="btn" href="/portal/admin/listings/{{ listing.id }}">Details</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

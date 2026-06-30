@@ -1,0 +1,44 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+<section class="card">
+  <a class="back-link" href="/listings/{{ listing_id }}">Back to Details</a>
+  <h2>Submit Inquiry</h2>
+
+  {% if listing %}
+    <p><strong>{{ listing.title }}</strong> - {{ listing.address }}</p>
+  {% endif %}
+
+  {% if error_message %}
+    <div class="alert error">{{ error_message }}</div>
+  {% endif %}
+
+  {% if success_message %}
+    <div class="alert success">{{ success_message }}</div>
+  {% endif %}
+
+  <form method="post" action="/listings/{{ listing_id }}/inquiry" class="form-grid">
+    <label>
+      Name
+      <input type="text" name="client_name" required />
+    </label>
+
+    <label>
+      Email
+      <input type="email" name="client_email" required />
+    </label>
+
+    <label>
+      Phone
+      <input type="text" name="client_phone" required />
+    </label>
+
+    <label>
+      Message
+      <textarea name="message" rows="4" required></textarea>
+    </label>
+
+    <button type="submit" class="btn">Submit</button>
+  </form>
+</section>
+{% endblock %}

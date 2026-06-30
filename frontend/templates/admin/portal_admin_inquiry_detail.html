@@ -1,0 +1,32 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+<section class="card">
+  <a class="back-link" href="/portal/admin/inquiries">Back to Inquiries</a>
+  <h2>Inquiry Details</h2>
+
+  {% if error_message %}
+    <div class="alert error">{{ error_message }}</div>
+  {% endif %}
+
+  {% if inquiry %}
+    <p><strong>Client:</strong> {{ inquiry.client_name }} ({{ inquiry.client_email }})</p>
+    <p><strong>Phone:</strong> {{ inquiry.client_phone }}</p>
+    <p><strong>Status:</strong> {{ inquiry.status }}</p>
+    <p>
+      <strong>Listing:</strong>
+      <a href="/portal/admin/listings/{{ inquiry.listing_id }}">{{ inquiry.listing_name }}</a>
+    </p>
+    <p>
+      <strong>Assigned Agent:</strong>
+      {% if inquiry.assigned_agent_id %}
+        <a href="/portal/admin/agents/{{ inquiry.assigned_agent_id }}">{{ inquiry.agent_name }}</a>
+      {% else %}
+        {{ inquiry.agent_name }}
+      {% endif %}
+    </p>
+    <p><strong>Message:</strong> {{ inquiry.message }}</p>
+    <p><strong>Notes:</strong> {{ inquiry.notes }}</p>
+  {% endif %}
+</section>
+{% endblock %}

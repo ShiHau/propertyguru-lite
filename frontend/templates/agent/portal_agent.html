@@ -1,0 +1,48 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+<section class="card">
+  <h2>Agent Portal</h2>
+
+  <form method="post" action="/portal/agent/toggle-active" class="inline-form-row">
+    <span><strong>Status:</strong> {{ "active" if is_active else "inactive" }}</span>
+    <button type="submit" class="btn">Toggle Active</button>
+  </form>
+
+  {% if success_message %}
+    <div class="alert success">{{ success_message }}</div>
+  {% endif %}
+
+  {% if error_message %}
+    <div class="alert error">{{ error_message }}</div>
+  {% endif %}
+
+  <h3>My Inquiries</h3>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Client</th>
+        <th>Status</th>
+        <th>Listing</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for inquiry in inquiries %}
+        <tr>
+          <td>{{ inquiry.id }}</td>
+          <td>{{ inquiry.client_name }}</td>
+          <td>{{ inquiry.status }}</td>
+          <td>
+            <a href="/portal/agent/listings/{{ inquiry.listing_id }}">{{ inquiry.listing_title or inquiry.listing_id }}</a>
+          </td>
+          <td>
+            <a class="btn" href="/portal/agent/inquiries/{{ inquiry.id }}">Details</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}
