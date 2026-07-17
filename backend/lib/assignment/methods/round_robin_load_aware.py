@@ -1,31 +1,35 @@
 from typing import TYPE_CHECKING
-
+import redis
 from sqlalchemy.orm import Session
-
-from backend.models.lead import Lead
 
 if TYPE_CHECKING:
     from backend.lib.assignment.factory import AgentLoad
 
-#TODO: Should be managed "globally" with redis for multi worker deployment
-def _next_round_robin_id(db: Session, candidate_ids: list[int]) -> int | None:
+# Initialize the Redis client (adjust host/port according to your settings)
+redis_client = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+
+# Central Redis key to track the last assigned agent globally across all strategy runs
+REDIS_LAST_ASSIGNED_KEY = "assignment:last_assigned_agent_id"
+
+
+def _next_round_robin_id(candidate_ids: list[int]) -> int | None:
     if not candidate_ids:
         return None
 
     sorted_candidates = sorted(candidate_ids)
-    last_assigned = (
-        db.query(Lead.assigned_agent_id)
-        .filter(Lead.assigned_agent_id.in_(sorted_candidates))
-        .order_by(Lead.id.desc())
-        .first()
-    )
 
-    if not last_assigned or last_assigned[0] not in sorted_candidates:
-        return sorted_candidates[0]
+    last_assigned_raw = redis_client.get(REDIS_LAST_ASSIGNED_KEY)
+    last_assigned_id = int(last_assigned_raw) if last_assigned_raw else None
 
-    current_index = sorted_candidates.index(last_assigned[0])
-    next_index = (current_index + 1) % len(sorted_candidates)
-    return sorted_candidates[next_index]
+    if last_assigned_id is None or last_assigned_id not in sorted_candidates:
+        next_agent_id = sorted_candidates[0]
+    else:
+        current_index = sorted_candidates.index(last_assigned_id)
+        next_index = (current_index + 1) % len(sorted_candidates)
+        next_agent_id = sorted_candidates[next_index]
+
+    redis_client.set(REDIS_LAST_ASSIGNED_KEY, next_agent_id)
+    return next_agent_id
 
 
 class RoundRobinLoadAwareStrategy:
@@ -44,8 +48,8 @@ class RoundRobinLoadAwareStrategy:
             candidate_ids = [
                 agent.agent_id for agent in agent_loads if agent.lead_count == min_load
             ]
-            return _next_round_robin_id(db, candidate_ids)
+            return _next_round_robin_id(candidate_ids)
 
         # Once balanced, continue standard round robin among all active agents.
         all_agent_ids = [agent.agent_id for agent in agent_loads]
-        return _next_round_robin_id(db, all_agent_ids)
+        return _next_round_robin_id(all_agent_ids)
