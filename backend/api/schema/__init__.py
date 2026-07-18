@@ -8,7 +8,12 @@ from backend.api.schema.leads import (
     LeadUpdate,
 )
 from backend.api.schema.listings import ListingCreate, ListingResponse, ListingUpdate
-from backend.api.schema.users import AdminUserUpdate, AgentUserUpdate, UserCreate, UserResponse
+from backend.api.schema.users import (
+    AdminUserUpdate,
+    AgentUserUpdate,
+    UserCreate,
+    UserResponse,
+)
 
 __all__ = [
     "LoginRequest",

@@ -66,7 +66,9 @@ def update_my_profile(db: Session, principal: Principal, update_data: AgentUserU
     return user
 
 
-def update_inquiry(db: Session, principal: Principal, inquiry_id: int, update_data: LeadUpdate):
+def update_inquiry(
+    db: Session, principal: Principal, inquiry_id: int, update_data: LeadUpdate
+):
     inquiry = (
         db.query(Lead)
         .filter(Lead.id == inquiry_id, Lead.assigned_agent_id == principal.user_id)
@@ -87,7 +89,9 @@ def update_inquiry(db: Session, principal: Principal, inquiry_id: int, update_da
     return inquiry
 
 
-def add_notes(db: Session, principal: Principal, inquiry_id: int, notes: LeadNoteCreate):
+def add_notes(
+    db: Session, principal: Principal, inquiry_id: int, notes: LeadNoteCreate
+):
     inquiry = (
         db.query(Lead)
         .filter(Lead.id == inquiry_id, Lead.assigned_agent_id == principal.user_id)

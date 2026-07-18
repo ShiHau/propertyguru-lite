@@ -38,7 +38,9 @@ def load_agents():
                 agent = Agent(
                     email=row["email"],
                     full_name=row["full_name"],
-                    hashed_password=AuthenticationService.hash_password(row["password"]),
+                    hashed_password=AuthenticationService.hash_password(
+                        row["password"]
+                    ),
                     role=UserRole.AGENT,
                     is_active=int(row["is_active"]),
                 )
@@ -61,7 +63,9 @@ def load_admins():
                 admin = Admin(
                     email=row["email"],
                     full_name=row["full_name"],
-                    hashed_password=AuthenticationService.hash_password(row["password"]),
+                    hashed_password=AuthenticationService.hash_password(
+                        row["password"]
+                    ),
                     role=UserRole.ADMIN,
                     is_active=int(row["is_active"]),
                 )

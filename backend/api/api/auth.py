@@ -11,7 +11,9 @@ router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 @router.post("/login", response_model=TokenResponse)
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
-    principal = AuthenticationService.authenticate_user(db, payload.email, payload.password)
+    principal = AuthenticationService.authenticate_user(
+        db, payload.email, payload.password
+    )
     if not principal:
         raise HTTPException(status_code=401, detail="Invalid email or password")
 

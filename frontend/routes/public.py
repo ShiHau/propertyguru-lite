@@ -12,7 +12,9 @@ def home(request: Request):
     redirect = redirect_logged_in_user(request)
     if redirect:
         return redirect
-    return templates.TemplateResponse(request, "public/home.html", base_context(request))
+    return templates.TemplateResponse(
+        request, "public/home.html", base_context(request)
+    )
 
 
 @router.get("/listings", response_class=HTMLResponse, include_in_schema=False)
@@ -30,7 +32,9 @@ def listings(request: Request):
     return templates.TemplateResponse(request, "public/listings.html", context)
 
 
-@router.get("/listings/{listing_id}", response_class=HTMLResponse, include_in_schema=False)
+@router.get(
+    "/listings/{listing_id}", response_class=HTMLResponse, include_in_schema=False
+)
 def listing_detail(request: Request, listing_id: int):
     redirect = redirect_logged_in_user(request)
     if redirect:
@@ -45,7 +49,11 @@ def listing_detail(request: Request, listing_id: int):
     return templates.TemplateResponse(request, "public/listing_detail.html", context)
 
 
-@router.get("/listings/{listing_id}/inquiry", response_class=HTMLResponse, include_in_schema=False)
+@router.get(
+    "/listings/{listing_id}/inquiry",
+    response_class=HTMLResponse,
+    include_in_schema=False,
+)
 def inquiry_form(request: Request, listing_id: int):
     redirect = redirect_logged_in_user(request)
     if redirect:
@@ -67,7 +75,11 @@ def inquiry_form(request: Request, listing_id: int):
     return templates.TemplateResponse(request, "public/inquiry.html", context)
 
 
-@router.post("/listings/{listing_id}/inquiry", response_class=HTMLResponse, include_in_schema=False)
+@router.post(
+    "/listings/{listing_id}/inquiry",
+    response_class=HTMLResponse,
+    include_in_schema=False,
+)
 def inquiry_submit(
     request: Request,
     listing_id: int,

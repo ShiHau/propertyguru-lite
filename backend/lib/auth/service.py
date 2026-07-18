@@ -6,8 +6,17 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from backend.config import settings
-from backend.lib.auth.models import Permission, Principal, ROLE_PERMISSIONS, TokenPayload
-from backend.lib.auth.utils import as_principal, get_user_by_email, get_user_by_role_and_id
+from backend.lib.auth.models import (
+    Permission,
+    Principal,
+    ROLE_PERMISSIONS,
+    TokenPayload,
+)
+from backend.lib.auth.utils import (
+    as_principal,
+    get_user_by_email,
+    get_user_by_role_and_id,
+)
 from backend.models.user import UserRole
 
 
@@ -19,7 +28,6 @@ _password_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 
 class AuthenticationService:
-
     @staticmethod
     def hash_password(password: str) -> str:
         return _password_context.hash(password)
@@ -51,7 +59,9 @@ class AuthenticationService:
             "type": "access",
         }
 
-        return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
+        return jwt.encode(
+            payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm
+        )
 
     @classmethod
     def decode_access_token(cls, token: str) -> TokenPayload:
@@ -84,7 +94,9 @@ class AuthenticationService:
         return TokenPayload(subject=subject, role=role, user_id=user_id)
 
     @classmethod
-    def authenticate_user(cls, db: Session, email: str, password: str) -> Principal | None:
+    def authenticate_user(
+        cls, db: Session, email: str, password: str
+    ) -> Principal | None:
         user = get_user_by_email(db, email)
         if not user:
             return None
@@ -109,7 +121,6 @@ class AuthenticationService:
 
 
 class AuthorizationService:
-
     Permission = Permission
     ROLE_PERMISSIONS = ROLE_PERMISSIONS
 

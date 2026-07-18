@@ -1,12 +1,18 @@
 from typing import TYPE_CHECKING
 import redis
 from sqlalchemy.orm import Session
+from backend.config import settings
 
 if TYPE_CHECKING:
     from backend.lib.assignment.factory import AgentLoad
 
 # Initialize the Redis client (adjust host/port according to your settings)
-redis_client = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+redis_client = redis.Redis(
+    host=settings.redis_host,
+    port=settings.redis_port,
+    db=settings.redis_db,
+    decode_responses=True,
+)
 
 # Central Redis key to track the last assigned agent globally across all strategy runs
 REDIS_LAST_ASSIGNED_KEY = "assignment:last_assigned_agent_id"
@@ -35,7 +41,9 @@ def _next_round_robin_id(candidate_ids: list[int]) -> int | None:
 class RoundRobinLoadAwareStrategy:
     name = "round_robin_load_aware"
 
-    def select_agent_id(self, db: Session, agent_loads: list["AgentLoad"]) -> int | None:
+    def select_agent_id(
+        self, db: Session, agent_loads: list["AgentLoad"]
+    ) -> int | None:
         if not agent_loads:
             return None
 

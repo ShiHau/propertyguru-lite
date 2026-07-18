@@ -2,7 +2,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from backend.api.schema.common import RejectedResponse
-from backend.api.schema.leads import LeadDetailResponse, LeadNoteCreate, LeadResponse, LeadUpdate
+from backend.api.schema.leads import (
+    LeadDetailResponse,
+    LeadNoteCreate,
+    LeadResponse,
+    LeadUpdate,
+)
 from backend.api.schema.users import AgentUserUpdate, UserResponse
 from backend.api.security import require_agent_principal
 from backend.db import get_db
@@ -28,7 +33,9 @@ def get_inquiry_detail(
     db: Session = Depends(get_db),
     principal: Principal = Depends(require_agent_principal),
 ):
-    return agent_service.get_inquiry_detail(db, principal=principal, inquiry_id=inquiry_id)
+    return agent_service.get_inquiry_detail(
+        db, principal=principal, inquiry_id=inquiry_id
+    )
 
 
 @router.patch("/users/me", response_model=UserResponse | RejectedResponse)
@@ -37,7 +44,9 @@ def update_my_profile(
     db: Session = Depends(get_db),
     principal: Principal = Depends(require_agent_principal),
 ):
-    return agent_service.update_my_profile(db, principal=principal, update_data=update_data)
+    return agent_service.update_my_profile(
+        db, principal=principal, update_data=update_data
+    )
 
 
 @router.patch("/inquiries/{inquiry_id}", response_model=LeadResponse)
@@ -62,4 +71,6 @@ def add_notes(
     db: Session = Depends(get_db),
     principal: Principal = Depends(require_agent_principal),
 ):
-    return agent_service.add_notes(db, principal=principal, inquiry_id=inquiry_id, notes=notes)
+    return agent_service.add_notes(
+        db, principal=principal, inquiry_id=inquiry_id, notes=notes
+    )

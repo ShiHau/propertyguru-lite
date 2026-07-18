@@ -39,7 +39,13 @@ def get_session_principal(request: Request) -> tuple[str | None, dict | None]:
 def base_context(request: Request) -> dict:
     _, principal = get_session_principal(request)
     role = principal.get("role") if principal else None
-    role_home_url = "/portal/admin" if role == "admin" else "/portal/agent" if role == "agent" else None
+    role_home_url = (
+        "/portal/admin"
+        if role == "admin"
+        else "/portal/agent"
+        if role == "agent"
+        else None
+    )
     return {
         "request": request,
         "app_name": settings.frontend_app_name,
@@ -49,7 +55,9 @@ def base_context(request: Request) -> dict:
     }
 
 
-def redirect_with_message(path: str, *, success: str | None = None, error: str | None = None):
+def redirect_with_message(
+    path: str, *, success: str | None = None, error: str | None = None
+):
     query = {}
     if success:
         query["success"] = success
@@ -66,7 +74,9 @@ def require_login(request: Request) -> tuple[str, dict] | RedirectResponse:
     return token, principal
 
 
-def require_role(request: Request, allowed_roles: set[str]) -> tuple[str, dict] | RedirectResponse:
+def require_role(
+    request: Request, allowed_roles: set[str]
+) -> tuple[str, dict] | RedirectResponse:
     auth = require_login(request)
     if isinstance(auth, RedirectResponse):
         return auth

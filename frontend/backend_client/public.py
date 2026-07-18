@@ -24,7 +24,9 @@ def get_listings(limit: int = 50) -> list[dict[str, Any]]:
 
 def get_listing(listing_id: int) -> dict[str, Any]:
     try:
-        response = httpx.get(_url(f"/api/v1/client/listings/{listing_id}"), timeout=10.0)
+        response = httpx.get(
+            _url(f"/api/v1/client/listings/{listing_id}"), timeout=10.0
+        )
         response.raise_for_status()
     except httpx.HTTPStatusError as exc:
         if exc.response.status_code == 404:

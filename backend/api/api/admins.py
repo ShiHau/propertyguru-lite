@@ -34,7 +34,9 @@ def update_user(
     role: UserRole,
     db: Session = Depends(get_db),
 ):
-    return admin_service.update_user(db, user_id=user_id, role=role, update_data=update_data)
+    return admin_service.update_user(
+        db, user_id=user_id, role=role, update_data=update_data
+    )
 
 
 @router.delete("/users/{user_id}")
@@ -52,13 +54,17 @@ def create_listing(listing_data: ListingCreate, db: Session = Depends(get_db)):
     return admin_service.create_listing(db, listing_data)
 
 
-@router.patch("/listings/{listing_id}", response_model=ListingResponse | RejectedResponse)
+@router.patch(
+    "/listings/{listing_id}", response_model=ListingResponse | RejectedResponse
+)
 def update_listing(
     listing_id: int,
     update_data: ListingUpdate,
     db: Session = Depends(get_db),
 ):
-    return admin_service.update_listing(db, listing_id=listing_id, update_data=update_data)
+    return admin_service.update_listing(
+        db, listing_id=listing_id, update_data=update_data
+    )
 
 
 @router.delete("/listings/{listing_id}")

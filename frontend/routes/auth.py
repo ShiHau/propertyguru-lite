@@ -2,7 +2,12 @@ from fastapi import APIRouter, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 from frontend.backend_client import auth, common
-from frontend.routes.shared import TOKEN_COOKIE_NAME, base_context, require_login, templates
+from frontend.routes.shared import (
+    TOKEN_COOKIE_NAME,
+    base_context,
+    require_login,
+    templates,
+)
 
 router = APIRouter(tags=["frontend-auth"])
 

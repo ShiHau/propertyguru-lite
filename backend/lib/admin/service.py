@@ -2,7 +2,10 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from backend.lib.auth import AuthenticationService
-from backend.lib.validation import get_duplicate_listing_reason, get_duplicate_user_reason
+from backend.lib.validation import (
+    get_duplicate_listing_reason,
+    get_duplicate_user_reason,
+)
 from backend.models.lead import Lead
 from backend.models.listing import Listing
 from backend.models.user import Admin, Agent, UserRole
@@ -54,7 +57,9 @@ def create_user(db: Session, user_data: UserCreate):
     return db_user
 
 
-def update_user(db: Session, user_id: int, role: UserRole, update_data: AdminUserUpdate):
+def update_user(
+    db: Session, user_id: int, role: UserRole, update_data: AdminUserUpdate
+):
     if role == UserRole.AGENT:
         user = db.query(Agent).filter(Agent.id == user_id).first()
     elif role == UserRole.ADMIN:

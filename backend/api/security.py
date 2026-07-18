@@ -24,7 +24,9 @@ def get_current_principal(
     try:
         payload = AuthenticationService.decode_access_token(token)
     except TokenError as exc:
-        raise HTTPException(status_code=401, detail="Invalid authentication token") from exc
+        raise HTTPException(
+            status_code=401, detail="Invalid authentication token"
+        ) from exc
 
     principal = AuthenticationService.get_principal_by_subject(db, payload.subject)
     if not principal:

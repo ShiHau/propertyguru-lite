@@ -5,7 +5,9 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from backend.config import settings
-from backend.lib.assignment.methods.round_robin_load_aware import RoundRobinLoadAwareStrategy
+from backend.lib.assignment.methods.round_robin_load_aware import (
+    RoundRobinLoadAwareStrategy,
+)
 from backend.models.lead import Lead
 from backend.models.user import Agent
 
