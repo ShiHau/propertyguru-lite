@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -6,14 +7,19 @@ from backend.api import api_router
 from backend.config import settings
 from backend.db import engine, Base
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
 
-# Initialize FastAPI app
+# Startup lifespan block
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
+
+
 app = FastAPI(
     title=settings.app_name,
     description="Real Estate Leads Management System",
     version="0.1.1",
+    lifespan=lifespan,
 )
 
 app.add_middleware(

@@ -21,6 +21,36 @@ services:
     volumes:
       - redisdata:/data
 
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: app_backend
+    # Inherit .env defaults, then override network locations for internal container space
+    env_file: .env
+    environment:
+      - POSTGRES_HOST=postgres
+      - REDIS_HOST=redis
+      - APP_ENVIRONMENT=production
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: app_frontend
+    env_file: .env
+    environment:
+      - BACKEND_API_URL=http://localhost:8000
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+
 volumes:
   pgdata:
   redisdata:
