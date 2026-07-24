@@ -19,10 +19,15 @@ class Settings(BaseSettings):
     postgres_host: str = Field("localhost", validation_alias="POSTGRES_HOST")
     postgres_port: int = Field(5432, validation_alias="POSTGRES_PORT")
 
-    # This dynamically builds the URL string based on the active host variable
+    # This dynamically builds the URL string based on environment
     @computed_field
     def database_url(self) -> str:
-        return f"postgresql://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+        if self.app_environment == "development":
+            # Development: use SQLite for simplicity
+            return "sqlite:///./data/app.db"
+        else:
+            # Production: use PostgreSQL
+            return f"postgresql://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
 
     # Redis Configuration
     redis_host: str = Field("localhost", validation_alias="REDIS_HOST")

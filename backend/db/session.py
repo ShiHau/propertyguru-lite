@@ -3,11 +3,12 @@ from sqlalchemy.orm import sessionmaker
 
 from backend.config import settings
 
-# Create database engine
+# Create database engine with environment-specific configuration
 engine = create_engine(
     settings.database_url,
+    # SQLite requires check_same_thread=False for async/multi-threaded use
     connect_args={"check_same_thread": False}
-    if "sqlite" in settings.database_url
+    if settings.app_environment == "development"
     else {},
 )
 

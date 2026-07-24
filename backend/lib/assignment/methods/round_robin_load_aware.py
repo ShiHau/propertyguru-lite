@@ -1,18 +1,9 @@
 from typing import TYPE_CHECKING
-import redis
 from sqlalchemy.orm import Session
-from backend.config import settings
+from backend.lib.redis_client import redis_client
 
 if TYPE_CHECKING:
     from backend.lib.assignment.factory import AgentLoad
-
-# Initialize the Redis client (adjust host/port according to your settings)
-redis_client = redis.Redis(
-    host=settings.redis_host,
-    port=settings.redis_port,
-    db=settings.redis_db,
-    decode_responses=True,
-)
 
 # Central Redis key to track the last assigned agent globally across all strategy runs
 REDIS_LAST_ASSIGNED_KEY = "assignment:last_assigned_agent_id"
